@@ -29,7 +29,7 @@ public class PetBackpackScreen extends AbstractContainerScreen<PetBackpackMenu> 
         LivingEntity pet = this.menu.getPet(Minecraft.getInstance().level);
         if (pet != null) {
             int centerX = this.leftPos + 51;
-            int centerY = this.topPos + 60;
+            int centerY = this.topPos + 50;
             int halfSize = 30;
             InventoryScreen.renderEntityInInventoryFollowsMouse(
                     graphics,

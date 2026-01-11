@@ -1,0 +1,89 @@
+package com.dwinovo.popularbiology.entity.interact;
+
+import com.dwinovo.popularbiology.entity.AbstractPet;
+import com.dwinovo.popularbiology.entity.PetMode;
+
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+
+public final class PetInteractHandler {
+    private static final float TAME_CHANCE = 0.3F;
+    private static final float FEED_HEAL = 4.0F;
+
+    private PetInteractHandler() {
+    }
+
+    public static InteractionResult handle(AbstractPet pet, Player player, InteractionHand hand) {
+        Level level = pet.level();
+        boolean isTame = pet.isTame();
+        boolean isOwner = pet.isOwnedBy(player);
+        boolean isSneaking = player.isShiftKeyDown();
+        ItemStack held = player.getItemInHand(hand);
+        boolean isFood = held.getItem().getFoodProperties(held, player) != null;
+
+        if (!isTame && isFood) {
+            return handleTame(level, pet, player, hand);
+        }
+        if (isTame && isOwner && isFood) {
+            return handleFeed(level, pet, player, hand);
+        }
+        if (isTame && isOwner && isSneaking) {
+            return handleModeChange(level, pet);
+        }
+        if (isTame && isOwner && !isSneaking && !isFood) {
+            return handleOpenMenu(level, pet, player);
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    private static InteractionResult handleTame(Level level, AbstractPet pet, Player player, InteractionHand hand) {
+        if (!level.isClientSide) {
+            if (!player.isCreative()) {
+                player.getItemInHand(hand).shrink(1);
+            }
+            if (level.getRandom().nextFloat() < TAME_CHANCE) {
+                pet.tame(player);
+                level.broadcastEntityEvent(pet, (byte) 7);
+            }
+            else {
+                level.broadcastEntityEvent(pet, (byte) 6);
+            }
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    private static InteractionResult handleFeed(Level level, AbstractPet pet, Player player, InteractionHand hand) {
+        if (!level.isClientSide) {
+            if (!player.isCreative()) {
+                player.getItemInHand(hand).shrink(1);
+            }
+            if (pet.getHealth() < pet.getMaxHealth()) {
+                pet.heal(FEED_HEAL);
+            }
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    private static InteractionResult handleModeChange(Level level, AbstractPet pet) {
+        if (!level.isClientSide) {
+            PetMode next = pet.getPetMode().next();
+            pet.setPetMode(next);
+            if (pet.getOwner() instanceof Player owner) {
+                owner.displayClientMessage(next.getMessage(pet), true);
+            }
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    private static InteractionResult handleOpenMenu(Level level, AbstractPet pet, Player player) {
+        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.openMenu(pet);
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+}

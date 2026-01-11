@@ -7,6 +7,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
@@ -17,12 +21,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import com.dwinovo.popularbiology.menu.PetBackpackMenu;
+import com.dwinovo.popularbiology.entity.interact.PetInteractHandler;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimatableManager.ControllerRegistrar;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
@@ -30,16 +33,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class AbstractPet extends TamableAnimal implements GeoEntity, MenuProvider {
     public static final int BACKPACK_SIZE = 16;
+    private static final EntityDataAccessor<Byte> PET_MODE = SynchedEntityData.defineId(AbstractPet.class, EntityDataSerializers.BYTE);
     private final AnimatableInstanceCache animatableInstanceCache = GeckoLibUtil.createInstanceCache(this);
-    private final SimpleContainer backpack = new SimpleContainer(BACKPACK_SIZE) {
-        @Override
-        public void setChanged() {
-            super.setChanged();
-            if (!level().isClientSide) {
-                level().getChunkAt(blockPosition()).setUnsaved(true);
-            }
-        }
-    };
+    private final SimpleContainer backpack = new SimpleContainer(BACKPACK_SIZE);
 
     protected AbstractPet(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
@@ -47,6 +43,31 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, MenuProvide
 
     public SimpleContainer getBackpack() {
         return backpack;
+    }
+
+    public PetMode getPetMode() {
+        return PetMode.fromId(this.entityData.get(PET_MODE));
+    }
+
+    public void setPetMode(PetMode mode) {
+        this.entityData.set(PET_MODE, (byte) mode.ordinal());
+    }
+
+    @Override
+    public ItemStack getItemBySlot(EquipmentSlot slot) {
+        if (slot == EquipmentSlot.MAINHAND) {
+            return backpack.getItem(0);
+        }
+        return super.getItemBySlot(slot);
+    }
+
+    @Override
+    public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
+        if (slot == EquipmentSlot.MAINHAND) {
+            backpack.setItem(0, stack);
+            return;
+        }
+        super.setItemSlot(slot, stack);
     }
     
     @Override
@@ -86,6 +107,12 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, MenuProvide
     }
 
     @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(PET_MODE, (byte) PetMode.FOLLOW.ordinal());
+    }
+
+    @Override
     public boolean isFood(ItemStack arg0) {
         return false;
     }
@@ -116,10 +143,11 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, MenuProvide
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (!level().isClientSide && player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.openMenu(this);
+        InteractionResult result = PetInteractHandler.handle(this, player, hand);
+        if (result != InteractionResult.PASS) {
+            return result;
         }
-        return InteractionResult.sidedSuccess(level().isClientSide);
+        return super.mobInteract(player, hand);
     }
     
 }
