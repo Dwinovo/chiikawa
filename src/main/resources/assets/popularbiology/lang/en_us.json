@@ -1,0 +1,13 @@
+{
+  "itemGroup.popularbiology": "Example Mod Tab",
+  "block.popularbiology.example_block": "Example Block",
+  "item.popularbiology.example_item": "Example Item",
+
+  "popularbiology.configuration.title": "PopularBiology Configs",
+  "popularbiology.configuration.section.popularbiology.common.toml": "PopularBiology Configs",
+  "popularbiology.configuration.section.popularbiology.common.toml.title": "PopularBiology Configs",
+  "popularbiology.configuration.items": "Item List",
+  "popularbiology.configuration.logDirtBlock": "Log Dirt Block",
+  "popularbiology.configuration.magicNumberIntroduction": "Magic Number Text",
+  "popularbiology.configuration.magicNumber": "Magic Number"
+}
