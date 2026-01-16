@@ -32,5 +32,12 @@ public final class DataGenerators {
                 existingFileHelper
             )
         );
+        event.getGenerator().addProvider(event.includeServer(), 
+            new ModBlockTagsProvider(
+                output,
+                lookupProvider,
+                existingFileHelper
+            )
+        );
     }
 }

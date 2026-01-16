@@ -27,6 +27,7 @@ import com.mojang.serialization.Dynamic;
 import com.dwinovo.popularbiology.PopularBiology;
 import com.dwinovo.popularbiology.entity.interact.PetInteractHandler;
 import com.dwinovo.popularbiology.entity.job.api.IPetJob;
+import com.dwinovo.popularbiology.init.InitMemory;
 import com.dwinovo.popularbiology.init.InitRegistry;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -50,12 +51,18 @@ public class AbstractPet extends TamableAnimal implements GeoEntity {
         MemoryModuleType.ATTACK_TARGET,
         MemoryModuleType.ATTACK_COOLING_DOWN,
         MemoryModuleType.HURT_BY_ENTITY,
-        MemoryModuleType.HOME
+        MemoryModuleType.HOME,
+        InitMemory.HARVEST_POS.get(),
+        InitMemory.PLANT_POS.get(),
+        InitMemory.CONTAINER_POS.get()
     );
     private static final java.util.List<net.minecraft.world.entity.ai.sensing.SensorType<? extends net.minecraft.world.entity.ai.sensing.Sensor<? super AbstractPet>>> SENSOR_TYPES = java.util.List.of(
         net.minecraft.world.entity.ai.sensing.SensorType.HURT_BY,
         net.minecraft.world.entity.ai.sensing.SensorType.NEAREST_LIVING_ENTITIES,
-        com.dwinovo.popularbiology.init.InitSensor.PET_ATTACKBLE_ENTITY_SENSOR.get()
+        com.dwinovo.popularbiology.init.InitSensor.PET_ATTACKBLE_ENTITY_SENSOR.get(),
+        com.dwinovo.popularbiology.init.InitSensor.PET_HARVEST_CROP_SENSOR.get(),
+        com.dwinovo.popularbiology.init.InitSensor.PET_PLANT_CROP_SENSOR.get(),
+        com.dwinovo.popularbiology.init.InitSensor.PET_CONTAINER_SENSOR.get()
     );
     private final AnimatableInstanceCache animatableInstanceCache = GeckoLibUtil.createInstanceCache(this);
     private final SimpleContainer backpack = new SimpleContainer(BACKPACK_SIZE);

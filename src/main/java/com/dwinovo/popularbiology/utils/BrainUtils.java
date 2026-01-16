@@ -2,14 +2,21 @@ package com.dwinovo.popularbiology.utils;
 
 import com.dwinovo.popularbiology.entity.AbstractPet;
 import com.dwinovo.popularbiology.entity.brain.task.tameable.KeepAroundBehavior;
+import com.dwinovo.popularbiology.entity.brain.task.tameable.RandomWalkTask;
 import com.dwinovo.popularbiology.entity.brain.task.tameable.SitBehavior;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
+
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
+import net.minecraft.world.entity.ai.behavior.DoNothing;
 import net.minecraft.world.entity.ai.behavior.LookAtTargetSink;
 import net.minecraft.world.entity.ai.behavior.MoveToTargetSink;
 import net.minecraft.world.entity.ai.behavior.RandomStroll;
+import net.minecraft.world.entity.ai.behavior.RunOne;
+import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget;
 import net.minecraft.world.entity.schedule.Activity;
 
 public final class BrainUtils {
@@ -25,7 +32,14 @@ public final class BrainUtils {
     }
 
     public static void addIdleTasks(Brain<AbstractPet> brain) {
-        Pair<Integer, BehaviorControl<? super AbstractPet>> randomTask = Pair.of(99, RandomStroll.stroll(0.6F));
+        Pair<Integer, BehaviorControl<? super AbstractPet>> randomTask = Pair.of(99, getLookAndRandomWalk());
         brain.addActivity(Activity.IDLE, ImmutableList.of(randomTask));
+    }
+    private static RunOne<AbstractPet> getLookAndRandomWalk() {
+        Pair<BehaviorControl<? super AbstractPet>, Integer> lookToPlayer = Pair.of(SetEntityLookTarget.create(EntityType.PLAYER, 5), 2);
+        Pair<BehaviorControl<? super AbstractPet>, Integer> lookToAny = Pair.of(SetEntityLookTarget.create(MobCategory.CREATURE, 5), 2);
+        Pair<BehaviorControl<? super AbstractPet>, Integer> walkRandomly = Pair.of(new RandomWalkTask(), 2);
+        Pair<BehaviorControl<? super AbstractPet>, Integer> noThing = Pair.of(new DoNothing(30, 60), 1);
+        return new RunOne<AbstractPet>(ImmutableList.of(lookToPlayer, lookToAny, walkRandomly, noThing));
     }
 }
