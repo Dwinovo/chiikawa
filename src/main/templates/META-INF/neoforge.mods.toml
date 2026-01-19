@@ -36,7 +36,7 @@ displayName="${mod_name}" #mandatory
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
 
 # A file name (in the root of the mod JAR) containing a logo for display
-#logoFile="examplemod.png" #optional
+logoFile="logo.png" #optional
 
 # A text field displayed in the mod UI
 #credits="" #optional
@@ -46,7 +46,7 @@ authors="Dwinovo"
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Popular Biology adds popular internet characters as tamable pets in Minecraft. With unique models and sounds, they fight for you, each with special abilities and weapons. Tame them, command them, and enhance your adventure with these loyal companions!
+some cute pets？
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
