@@ -1,6 +1,8 @@
 package com.dwinovo.popularbiology.entity.impl;
 
 import com.dwinovo.popularbiology.entity.AbstractPet;
+import com.dwinovo.popularbiology.sound.PetSoundSet;
+import com.dwinovo.popularbiology.sound.PetSoundSets;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TamableAnimal;
@@ -20,5 +22,9 @@ public class RakkoPet extends AbstractPet {
                 .add(Attributes.MOVEMENT_SPEED, 0.3D)
                 .add(Attributes.ATTACK_DAMAGE, 4.0D);
     }
-}
 
+    @Override
+    protected PetSoundSet getSoundSet() {
+        return PetSoundSets.RAKKO;
+    }
+}

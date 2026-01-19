@@ -45,10 +45,9 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.server.level.ServerLevel;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.minecraft.world.item.ProjectileWeaponItem;
+import com.dwinovo.popularbiology.sound.PetSoundSet;
 
 public class AbstractPet extends TamableAnimal implements GeoEntity, RangedAttackMob {
     public static final int BACKPACK_SIZE = 16;
@@ -208,7 +207,6 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, RangedAttac
         if (!arrowItem.isInfinite(ammo, weapon, this)) {
             ammo.shrink(1);
         }
-        playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (getRandom().nextFloat() * 0.4F + 0.8F));
     }
 
 
@@ -316,6 +314,10 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, RangedAttac
             return result;
         }
         return super.mobInteract(player, hand);
+    }
+
+    protected PetSoundSet getSoundSet() {
+        return PetSoundSet.EMPTY;
     }
     
 }

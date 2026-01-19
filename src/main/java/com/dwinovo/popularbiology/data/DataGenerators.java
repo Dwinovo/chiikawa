@@ -22,6 +22,8 @@ public final class DataGenerators {
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
+        event.getGenerator().addProvider(event.includeClient(),
+                new ModSoundDefinitionsProvider(output, existingFileHelper));
         event.getGenerator().addProvider(event.includeServer(),
                 new ModItemTagsProvider(output, lookupProvider, existingFileHelper));
         // 注册实体标签生成器
