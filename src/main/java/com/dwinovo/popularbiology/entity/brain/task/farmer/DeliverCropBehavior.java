@@ -25,14 +25,9 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // 这个任务用于将作物传输到容器中
 public class DeliverCropBehavior extends Behavior<AbstractPet> {
-    // 日志
-    @SuppressWarnings("unused")
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeliverCropBehavior.class);
     private boolean didOpen;
     private BlockPos openContainerPos;
     // 需要记忆的模块
@@ -109,7 +104,7 @@ public class DeliverCropBehavior extends Behavior<AbstractPet> {
                 this.openContainerPos = null;
             }
         } catch (Exception e) {
-            LOGGER.error("DeliverCropTask start error", e);
+            // Ignore and allow task to fail silently.
         }
     }
 

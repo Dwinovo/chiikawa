@@ -1,6 +1,5 @@
 package com.dwinovo.popularbiology;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -37,8 +36,6 @@ public class PopularBiologyClient {
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
         // Some client setup code
-        PopularBiology.LOGGER.info("HELLO FROM CLIENT SETUP");
-        PopularBiology.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         event.enqueueWork(() -> {
             EntityRenderers.register(InitEntity.USAGI_PET.get(), UsagiRender::new);
             EntityRenderers.register(InitEntity.HACHIWARE_PET.get(), HachiwareRender::new);

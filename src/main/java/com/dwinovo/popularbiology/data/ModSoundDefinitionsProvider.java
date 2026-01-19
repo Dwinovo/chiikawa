@@ -36,7 +36,6 @@ public final class ModSoundDefinitionsProvider extends SoundDefinitionsProvider 
         for (InitSounds.SoundEntry entry : InitSounds.entries()) {
             List<ResourceLocation> sounds = variants.get(entry.path());
             if (sounds == null || sounds.isEmpty()) {
-                PopularBiology.LOGGER.warn("No sound variants found for event: {}", entry.path());
                 continue;
             }
             SoundDefinition.Sound[] soundEntries = sounds.stream()
@@ -50,7 +49,6 @@ public final class ModSoundDefinitionsProvider extends SoundDefinitionsProvider 
     private Map<String, List<ResourceLocation>> collectVariants() {
         Map<String, List<ResourceLocation>> variants = new HashMap<>();
         if (soundsDir == null || !Files.exists(soundsDir)) {
-            PopularBiology.LOGGER.warn("Sounds directory not found: {}", soundsDir);
             return variants;
         }
 
@@ -69,7 +67,7 @@ public final class ModSoundDefinitionsProvider extends SoundDefinitionsProvider 
                                 .add(ResourceLocation.fromNamespaceAndPath(PopularBiology.MODID, soundPath));
                     });
         } catch (IOException e) {
-            PopularBiology.LOGGER.error("Failed to scan sounds directory for data generation.", e);
+            // Ignore and generate no variants.
         }
 
         return variants;

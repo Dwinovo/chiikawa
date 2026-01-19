@@ -46,6 +46,7 @@ public class HurtRangedAttackTargetTask extends Behavior<AbstractPet>{
         if (pet.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).isPresent())
         {
             LivingEntity target = pet.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
+            pet.triggerAnim("main", "sword_attack");
             pet.startUsingItem(InteractionHand.MAIN_HAND);
             pet.getLookControl().setLookAt(target, 30.0f, 30.0f);
         }
@@ -57,6 +58,7 @@ public class HurtRangedAttackTargetTask extends Behavior<AbstractPet>{
         {
             LivingEntity target = pet.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
             pet.getLookControl().setLookAt(target, 30.0f, 30.0f);
+            pet.getNavigation().stop();
         }
         actionTime--;
     }
@@ -75,6 +77,7 @@ public class HurtRangedAttackTargetTask extends Behavior<AbstractPet>{
     protected void stop(ServerLevel pLevel, AbstractPet pEntity, long pGameTime) {
         if (pEntity.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).isPresent()) {
             pEntity.performRangedAttack(pEntity.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get(), 1.0f);
+            
         }
         pEntity.getBrain().setMemoryWithExpiry(MemoryModuleType.ATTACK_COOLING_DOWN, true, 20);
         pEntity.stopUsingItem();
