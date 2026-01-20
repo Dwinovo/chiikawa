@@ -37,6 +37,8 @@ public final class DataGenerators {
                 new ModLanguageProvider(output, "zh_cn"));
         event.getGenerator().addProvider(event.includeServer(),
                 new ModItemTagsProvider(output, lookupProvider, existingFileHelper));
+        event.getGenerator().addProvider(event.includeServer(),
+                new ModRecipeProvider(output, lookupProvider));
         // Entity tags.
         event.getGenerator().addProvider(event.includeServer(), 
             new ModEntityTagsProvider(
