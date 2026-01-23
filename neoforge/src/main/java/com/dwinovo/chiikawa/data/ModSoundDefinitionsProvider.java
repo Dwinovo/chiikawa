@@ -12,17 +12,19 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.data.SoundDefinition;
 import net.neoforged.neoforge.common.data.SoundDefinitionsProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public final class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
-    private final Map<String, List<ResourceLocation>> variants;
+    private final PackOutput output;
 
-    public ModSoundDefinitionsProvider(PackOutput output) {
-        super(output, Constants.MOD_ID);
-        this.variants = SoundData.collectVariants(output);
+    public ModSoundDefinitionsProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
+        super(output, Constants.MOD_ID, existingFileHelper);
+        this.output = output;
     }
 
     @Override
     public void registerSounds() {
+        Map<String, List<ResourceLocation>> variants = SoundData.collectVariants(output);
         for (InitSounds.SoundEntry entry : InitSounds.entries()) {
             List<ResourceLocation> sounds = variants.get(entry.path());
             if (sounds == null || sounds.isEmpty()) {
@@ -36,5 +38,3 @@ public final class ModSoundDefinitionsProvider extends SoundDefinitionsProvider 
         }
     }
 }
-
-

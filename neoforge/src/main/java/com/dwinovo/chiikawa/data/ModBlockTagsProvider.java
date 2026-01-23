@@ -8,12 +8,17 @@ import com.dwinovo.chiikawa.data.TagData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class ModBlockTagsProvider extends BlockTagsProvider{
     
-    public ModBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider)
+    public ModBlockTagsProvider(
+        PackOutput output,
+        CompletableFuture<HolderLookup.Provider> lookupProvider,
+        ExistingFileHelper existingFileHelper
+    )
     {
-        super(output, lookupProvider, Constants.MOD_ID);
+        super(output, lookupProvider, Constants.MOD_ID, existingFileHelper);
     }
     @Override
     protected void addTags(HolderLookup.Provider provider) {

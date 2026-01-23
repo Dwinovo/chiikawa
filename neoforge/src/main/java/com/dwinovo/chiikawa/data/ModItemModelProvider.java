@@ -1,38 +1,34 @@
 package com.dwinovo.chiikawa.data;
 
-import com.dwinovo.chiikawa.Chiikawa;
-import com.dwinovo.chiikawa.init.InitItems;
-
-import net.minecraft.client.data.models.BlockModelGenerators;
-import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.ModelProvider;
-import net.minecraft.client.data.models.model.ModelTemplates;
+import com.dwinovo.chiikawa.Constants;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
-public final class ModItemModelProvider extends ModelProvider {
-    public ModItemModelProvider(PackOutput output) {
-        super(output, Chiikawa.MODID);
+public final class ModItemModelProvider extends ItemModelProvider {
+    private static final String[] SPAWN_EGGS = {
+        "usagi_spawn_egg",
+        "hachiware_spawn_egg",
+        "chiikawa_spawn_egg",
+        "shisa_spawn_egg",
+        "momonga_spawn_egg",
+        "kurimanju_spawn_egg",
+        "rakko_spawn_egg"
+    };
+
+    public ModItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
+        super(output, Constants.MOD_ID, existingFileHelper);
     }
 
     @Override
-    protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
-        generateSpawnEggs(itemModels);
+    protected void registerModels() {
+        for (String name : SPAWN_EGGS) {
+            withExistingParent(
+                ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, name).toString(),
+                mcLoc("item/template_spawn_egg")
+            );
+        }
 
-        // Weapons use custom Blockbench models under resources.
-        itemModels.declareCustomModelItem(InitItems.USAGI_WEAPON.get());
-        itemModels.declareCustomModelItem(InitItems.HACHIWARE_WEAPON.get());
-        itemModels.declareCustomModelItem(InitItems.CHIIKAWA_WEAPON.get());
-    }
-
-    private static void generateSpawnEggs(ItemModelGenerators itemModels) {
-        itemModels.generateFlatItem(InitItems.USAGI_SPAWN_EGG.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(InitItems.HACHIWARE_SPAWN_EGG.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(InitItems.CHIIKAWA_SPAWN_EGG.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(InitItems.SHISA_SPAWN_EGG.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(InitItems.MOMONGA_SPAWN_EGG.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(InitItems.KURIMANJU_SPAWN_EGG.get(), ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(InitItems.RAKKO_SPAWN_EGG.get(), ModelTemplates.FLAT_ITEM);
     }
 }
-
-

@@ -9,6 +9,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,26 +21,29 @@ public final class DataGenerators {
     }
 
     @SubscribeEvent
-    public static void gatherData(GatherDataEvent.Client event) {
+    public static void gatherData(GatherDataEvent event) {
         PackOutput output = event.getGenerator().getPackOutput();
-        event.getGenerator().addProvider(true,
-                new ModSoundDefinitionsProvider(output));
-        event.getGenerator().addProvider(true,
-                new ModItemModelProvider(output));
-        event.getGenerator().addProvider(true,
+        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+        boolean client = event.includeClient();
+        boolean server = event.includeServer();
+        event.getGenerator().addProvider(client,
+                new ModSoundDefinitionsProvider(output, existingFileHelper));
+        event.getGenerator().addProvider(client,
+                new ModItemModelProvider(output, existingFileHelper));
+        event.getGenerator().addProvider(client,
                 new ModLanguageProvider(output, "en_us"));
-        event.getGenerator().addProvider(true,
+        event.getGenerator().addProvider(client,
                 new ModLanguageProvider(output, "zh_cn"));
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
-        event.getGenerator().addProvider(true,
+        event.getGenerator().addProvider(server,
                 new DatapackBuiltinEntriesProvider(output, lookupProvider, ModDatapackRegistries.BUILDER,
                         Set.of(Chiikawa.MODID)));
-        ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(output, lookupProvider);
-        event.getGenerator().addProvider(true, blockTagsProvider);
-        event.getGenerator().addProvider(true,
-                new ModItemTagsProvider(output, lookupProvider));
-        event.getGenerator().addProvider(true,
+        ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(output, lookupProvider, existingFileHelper);
+        event.getGenerator().addProvider(server, blockTagsProvider);
+        event.getGenerator().addProvider(server,
+                new ModItemTagsProvider(output, lookupProvider, existingFileHelper));
+        event.getGenerator().addProvider(server,
                 new RecipeProvider.Runner(output, lookupProvider) {
                     @Override
                     public String getName() {
@@ -52,10 +56,11 @@ public final class DataGenerators {
                     }
                 });
         // Entity tags.
-        event.getGenerator().addProvider(true, 
+        event.getGenerator().addProvider(server,
             new ModEntityTagsProvider(
                 output,
-                lookupProvider
+                lookupProvider,
+                existingFileHelper
             )
         );
     }

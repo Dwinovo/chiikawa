@@ -2,14 +2,19 @@ package com.dwinovo.chiikawa.data;
 
 import com.dwinovo.chiikawa.init.InitItems;
 
-import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
+import java.util.Optional;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.minecraft.client.data.models.BlockModelGenerators;
-import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.world.item.Item;
+import net.minecraft.data.models.BlockModelGenerators;
+import net.minecraft.data.models.ItemModelGenerators;
+import net.minecraft.data.models.model.ModelTemplate;
+import net.minecraft.data.models.model.ModelTemplates;
+import net.minecraft.resources.ResourceLocation;
+
 
 public class FabricModItemModelProvider extends FabricModelProvider {
+
+
     public FabricModItemModelProvider(FabricDataOutput output) {
         super(output);
     }
@@ -22,10 +27,7 @@ public class FabricModItemModelProvider extends FabricModelProvider {
     public void generateItemModels(ItemModelGenerators itemModelGenerator) {
         generateSpawnEggs(itemModelGenerator);
 
-        // Weapons use custom Blockbench models under resources.
-        itemModelGenerator.declareCustomModelItem(InitItems.USAGI_WEAPON.get());
-        itemModelGenerator.declareCustomModelItem(InitItems.HACHIWARE_WEAPON.get());
-        itemModelGenerator.declareCustomModelItem(InitItems.CHIIKAWA_WEAPON.get());
+        // Weapons have prebuilt models under resources; no datagen needed.
     }
 
     private static void generateSpawnEggs(ItemModelGenerators itemModelGenerator) {
