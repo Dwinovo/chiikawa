@@ -16,8 +16,7 @@ public class ModEntityTagsProvider extends EntityTypeTagsProvider{
     }
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        TagData.addEntityTags(this::tag);
+        TagData.addEntityTags((key, values) -> tag(key).add(values));
     }
 }
-
 

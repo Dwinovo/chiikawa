@@ -11,6 +11,7 @@ import com.mojang.serialization.Dynamic;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.Container;
@@ -39,8 +40,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -317,19 +316,20 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, RangedAttac
     }
 
     @Override
-    public void addAdditionalSaveData(ValueOutput output) {
-        super.addAdditionalSaveData(output);
-        ContainerHelper.saveAllItems(output.child("Backpack"), backpack.getItems());
-        output.putInt("PetJob", getPetJobId());
-        output.putByte("PetMode", this.entityData.get(PET_MODE));
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.put("Backpack", ContainerHelper.saveAllItems(new CompoundTag(), backpack.getItems(), level().registryAccess()));
+        tag.putInt("PetJob", getPetJobId());
+        tag.putByte("PetMode", this.entityData.get(PET_MODE));
     }
 
     @Override
-    public void readAdditionalSaveData(ValueInput input) {
-        super.readAdditionalSaveData(input);
-        input.child("Backpack").ifPresent(backpackInput -> ContainerHelper.loadAllItems(backpackInput, backpack.getItems()));
-        input.getInt("PetJob").ifPresent(this::setPetJobId);
-        this.entityData.set(PET_MODE, input.getByteOr("PetMode", this.entityData.get(PET_MODE)));
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        tag.getCompound("Backpack")
+            .ifPresent(backpackTag -> ContainerHelper.loadAllItems(backpackTag, backpack.getItems(), level().registryAccess()));
+        tag.getInt("PetJob").ifPresent(this::setPetJobId);
+        tag.getByte("PetMode").ifPresent(value -> this.entityData.set(PET_MODE, value));
         refreshJobFromMainhand(true);
     }
 

@@ -13,6 +13,6 @@ public class FabricModItemTagsProvider extends FabricTagProvider.ItemTagProvider
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        TagData.addItemTags(this::valueLookupBuilder);
+        TagData.addItemTags((key, values) -> getOrCreateTagBuilder(key).add(values));
     }
 }

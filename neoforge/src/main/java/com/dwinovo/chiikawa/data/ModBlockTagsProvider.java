@@ -17,7 +17,6 @@ public class ModBlockTagsProvider extends BlockTagsProvider{
     }
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        TagData.addBlockTags(this::tag);
+        TagData.addBlockTags((key, values) -> tag(key).add(values));
     }
 }
-

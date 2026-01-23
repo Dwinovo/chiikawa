@@ -2,21 +2,22 @@ package com.dwinovo.chiikawa.data;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.dwinovo.chiikawa.Constants;
 import com.dwinovo.chiikawa.data.TagData;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.common.data.ItemTagsProvider;
-public class ModItemTagsProvider extends ItemTagsProvider {
+import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
+import net.minecraft.world.item.Item;
+public class ModItemTagsProvider extends IntrinsicHolderTagsProvider<Item> {
     public ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, lookupProvider, Constants.MOD_ID);
+        super(output, Registries.ITEM, lookupProvider,
+            item -> BuiltInRegistries.ITEM.getResourceKey(item).orElseThrow());
     }
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        TagData.addItemTags(this::tag);
+        TagData.addItemTags((key, values) -> tag(key).add(values));
     }
 }
-
-
