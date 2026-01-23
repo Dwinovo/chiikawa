@@ -50,7 +50,11 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+/**
+ * Base implementation of a tamable pet with job, inventory, and ranged attack support.
+ */
 public class AbstractPet extends TamableAnimal implements GeoEntity, RangedAttackMob {
+    /** Number of slots available in the pet's backpack inventory. */
     public static final int BACKPACK_SIZE = 16;
     private static final EntityDataAccessor<Byte> PET_MODE = SynchedEntityData.defineId(AbstractPet.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Integer> PET_JOB = SynchedEntityData.defineId(AbstractPet.class, EntityDataSerializers.INT);
@@ -82,6 +86,12 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, RangedAttac
     private final AnimatableInstanceCache animatableInstanceCache = GeckoLibUtil.createInstanceCache(this);
     private final SimpleContainer backpack = new SimpleContainer(BACKPACK_SIZE);
 
+    /**
+     * Creates a new pet instance tied to its entity type and level.
+     *
+     * @param entityType the type definition for this pet
+     * @param level the level context where the pet spawns and lives
+     */
     protected AbstractPet(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
         backpack.addListener(new ContainerListener() {
@@ -92,26 +102,50 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, RangedAttac
         });
     }
 
+    /**
+     * Returns the container used as the pet's backpack.
+     *
+     * @return backpack inventory
+     */
     public SimpleContainer getBackpack() {
         return backpack;
     }
 
+    /**
+     * @return current {@link PetMode} stored in the entity data
+     */
     public PetMode getPetMode() {
         return PetMode.fromId(this.entityData.get(PET_MODE));
     }
 
+    /**
+     * Updates the mode displayed by the pet.
+     *
+     * @param mode new mode to persist
+     */
     public void setPetMode(PetMode mode) {
         this.entityData.set(PET_MODE, (byte) mode.ordinal());
     }
 
+    /**
+     * @return the registered job id currently controlling pet behavior
+     */
     public int getPetJobId() {
         return this.entityData.get(PET_JOB);
     }
 
+    /**
+     * Stores the provided job id into the pet's entity data.
+     *
+     * @param jobId identifier of the job to bind to
+     */
     public void setPetJobId(int jobId) {
         this.entityData.set(PET_JOB, jobId);
     }
 
+    /**
+     * Re-evaluates the pet's active job based on the current main hand item and refreshes the brain if it changes.
+     */
     public void refreshJobFromMainhand() {
         refreshJobFromMainhand(false);
     }
