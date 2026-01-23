@@ -16,7 +16,7 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
         pack.addProvider(FabricModBlockTagsProvider::new);
         pack.addProvider(FabricModItemTagsProvider::new);
         pack.addProvider(FabricModEntityTagsProvider::new);
-        pack.addProvider(FabricModSoundsProvider::new);
+        pack.addProvider((net.minecraft.data.DataProvider.Factory<FabricModSoundsProvider>) FabricModSoundsProvider::new);
         pack.addProvider((output, registries) -> new RecipeProvider.Runner(output, registries) {
             @Override
             public String getName() {

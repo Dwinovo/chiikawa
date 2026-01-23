@@ -12,6 +12,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.Container;
@@ -43,8 +44,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.manager.AnimatableManager;
-import software.bernie.geckolib.animatable.processing.AnimationController;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
@@ -278,7 +279,7 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, RangedAttac
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        AnimationController<AbstractPet> main = new AnimationController<>("main", 5, state -> {
+        AnimationController<AbstractPet> main = new AnimationController<>(this, "main", 5, state -> {
             RawAnimation builder = RawAnimation.begin();
             if (this.getPetMode() == PetMode.SIT) {
                 builder.thenLoop("sit");
@@ -291,7 +292,7 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, RangedAttac
             return PlayState.CONTINUE;
         });
 
-        AnimationController<AbstractPet> sub = new AnimationController<>("sub", 1, state -> PlayState.STOP);
+        AnimationController<AbstractPet> sub = new AnimationController<>(this, "sub", 1, state -> PlayState.STOP);
 
         main.triggerableAnim("use_mainhand", RawAnimation.begin().thenPlay("use_mainhand"))
             .triggerableAnim("sword_attack", RawAnimation.begin().thenPlay("sword_attack"));
@@ -326,10 +327,15 @@ public class AbstractPet extends TamableAnimal implements GeoEntity, RangedAttac
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        tag.getCompound("Backpack")
-            .ifPresent(backpackTag -> ContainerHelper.loadAllItems(backpackTag, backpack.getItems(), level().registryAccess()));
-        tag.getInt("PetJob").ifPresent(this::setPetJobId);
-        tag.getByte("PetMode").ifPresent(value -> this.entityData.set(PET_MODE, value));
+        if (tag.contains("Backpack", Tag.TAG_COMPOUND)) {
+            ContainerHelper.loadAllItems(tag.getCompound("Backpack"), backpack.getItems(), level().registryAccess());
+        }
+        if (tag.contains("PetJob", Tag.TAG_INT)) {
+            setPetJobId(tag.getInt("PetJob"));
+        }
+        if (tag.contains("PetMode", Tag.TAG_BYTE)) {
+            this.entityData.set(PET_MODE, tag.getByte("PetMode"));
+        }
         refreshJobFromMainhand(true);
     }
 

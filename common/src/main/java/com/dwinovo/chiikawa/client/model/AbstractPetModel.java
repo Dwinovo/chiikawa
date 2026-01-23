@@ -5,15 +5,14 @@ import com.dwinovo.chiikawa.entity.AbstractPet;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.animatable.processing.AnimationState;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.constant.dataticket.DataTicket;
-import software.bernie.geckolib.renderer.base.GeoRenderState;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.model.data.EntityModelData;
+import software.bernie.geckolib.renderer.GeoRenderer;
+import software.bernie.geckolib.animation.AnimationState;
 
 public abstract class AbstractPetModel<T extends AbstractPet> extends GeoModel<T> {
-    private static final DataTicket<Float> LIMB_SWING_AMOUNT = DataTicket.create("chiikawa_limb_swing_amount", Float.class);
     private final String id;
 
     protected AbstractPetModel(String id) {
@@ -21,33 +20,28 @@ public abstract class AbstractPetModel<T extends AbstractPet> extends GeoModel<T
     }
 
     @Override
-    public ResourceLocation getModelResource(GeoRenderState renderState) {
-        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, id);
+    public ResourceLocation getModelResource(T animatable, GeoRenderer<T> renderer) {
+        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "geo/" + id + ".geo.json");
     }
 
     @Override
-    public ResourceLocation getTextureResource(GeoRenderState renderState) {
+    public ResourceLocation getTextureResource(T animatable, GeoRenderer<T> renderer) {
         return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/entities/" + id + ".png");
     }
 
     @Override
     public ResourceLocation getAnimationResource(T animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, id);
+        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "animations/" + id + ".animation.json");
     }
 
     @Override
-    public void addAdditionalStateData(T animatable, GeoRenderState renderState) {
-        float partialTick = renderState.getOrDefaultGeckolibData(DataTickets.PARTIAL_TICK, 0f);
-        renderState.addGeckolibData(LIMB_SWING_AMOUNT, animatable.walkAnimation.speed(partialTick));
-    }
-
-    @Override
-    public void setCustomAnimations(AnimationState<T> animationState) {
-        super.setCustomAnimations(animationState);
+    public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
+        super.setCustomAnimations(animatable, instanceId, animationState);
+        EntityModelData modelData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
         GeoBone headBone = this.getAnimationProcessor().getBone("AllHead");
         if (headBone != null) {
-            float netHeadYaw = animationState.getData(DataTickets.ENTITY_YAW);
-            float headPitch = animationState.getData(DataTickets.ENTITY_PITCH);
+            float netHeadYaw = modelData != null ? modelData.netHeadYaw() : 0.0F;
+            float headPitch = modelData != null ? modelData.headPitch() : 0.0F;
             headBone.setRotY(netHeadYaw * ((float) Math.PI / 180F));
             headBone.setRotX(headPitch * ((float) Math.PI / 180F));
         }
@@ -56,8 +50,8 @@ public abstract class AbstractPetModel<T extends AbstractPet> extends GeoModel<T
         GeoBone rightEarBone = this.getAnimationProcessor().getBone("RightEar");
         GeoBone tailBone = this.getAnimationProcessor().getBone("tail");
 
-        double animationTicks = animationState.getData(DataTickets.ANIMATION_TICKS);
-        float limbSwingAmount = animationState.getDataOrDefault(LIMB_SWING_AMOUNT, 0f);
+        double animationTicks = animationState.getData(DataTickets.TICK);
+        float limbSwingAmount = animationState.getLimbSwingAmount();
 
         float breathingSpeed = 0.1F;
         float earSwingAmount = 0.1F;
@@ -79,5 +73,3 @@ public abstract class AbstractPetModel<T extends AbstractPet> extends GeoModel<T
         }
     }
 }
-
-

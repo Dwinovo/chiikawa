@@ -2,38 +2,50 @@ package com.dwinovo.chiikawa.data;
 
 import com.dwinovo.chiikawa.data.SoundData;
 import com.dwinovo.chiikawa.init.InitSounds;
+import com.dwinovo.chiikawa.Constants;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import net.fabricmc.fabric.api.client.datagen.v1.builder.SoundTypeBuilder;
-import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricSoundsProvider;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 
-public class FabricModSoundsProvider extends FabricSoundsProvider {
+public class FabricModSoundsProvider implements DataProvider {
+    private final PackOutput output;
     private final Map<String, List<ResourceLocation>> variants;
 
-    public FabricModSoundsProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
-        super(output, registriesFuture);
+    public FabricModSoundsProvider(PackOutput output) {
+        this.output = output;
         this.variants = SoundData.collectVariants(output);
     }
 
     @Override
-    protected void configure(HolderLookup.Provider registryLookup, SoundExporter exporter) {
+    public CompletableFuture<?> run(CachedOutput cache) {
+        JsonObject root = new JsonObject();
         for (InitSounds.SoundEntry entry : InitSounds.entries()) {
             List<ResourceLocation> sounds = variants.get(entry.path());
             if (sounds == null || sounds.isEmpty()) {
                 continue;
             }
-            SoundTypeBuilder builder = SoundTypeBuilder.of();
+            JsonArray soundList = new JsonArray();
             sounds.stream()
                 .sorted(Comparator.comparing(ResourceLocation::toString))
-                .map(SoundTypeBuilder.EntryBuilder::ofFile)
-                .forEach(builder::sound);
-            exporter.add(entry.holder().get(), builder);
+                .forEach(sound -> {
+                    JsonObject soundEntry = new JsonObject();
+                    soundEntry.addProperty("name", sound.toString());
+                    soundList.add(soundEntry);
+                });
+            JsonObject definition = new JsonObject();
+            definition.add("sounds", soundList);
+            root.add(entry.path(), definition);
         }
+        PackOutput.PathProvider pathProvider = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "");
+        return DataProvider.saveStable(cache, root,
+            pathProvider.json(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "sounds")));
     }
 
     @Override

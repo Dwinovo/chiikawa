@@ -9,13 +9,14 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.HolderSet;
-import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers.AddSpawnsBiomeModifier;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class ModBiomeModifiers {
     public static final ResourceKey<BiomeModifier> ADD_PET_SPAWNS = ResourceKey.create(
@@ -28,13 +29,15 @@ public final class ModBiomeModifiers {
     public static void bootstrap(BootstrapContext<BiomeModifier> context) {
         HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
         HolderGetter<EntityType<?>> entities = context.lookup(Registries.ENTITY_TYPE);
-        WeightedList.Builder<SpawnerData> spawners = WeightedList.builder();
+        List<SpawnerData> spawners = new ArrayList<>();
 
         for (BiomeSpawnData.SpawnEntry entry : BiomeSpawnData.SPAWNS) {
-            spawners.add(
-                new SpawnerData(entities.getOrThrow(entry.entityKey()).value(), entry.minCount(), entry.maxCount()),
-                entry.weight()
-            );
+            spawners.add(new SpawnerData(
+                entities.getOrThrow(entry.entityKey()).value(),
+                entry.weight(),
+                entry.minCount(),
+                entry.maxCount()
+            ));
         }
 
         HolderSet<Biome> targetBiomes = HolderSet.direct(
@@ -42,8 +45,7 @@ public final class ModBiomeModifiers {
                 .map(biomes::getOrThrow)
                 .toList()
         );
-        context.register(ADD_PET_SPAWNS, new AddSpawnsBiomeModifier(targetBiomes, spawners.build()));
+        context.register(ADD_PET_SPAWNS, new AddSpawnsBiomeModifier(targetBiomes, spawners));
     }
 }
-
 
